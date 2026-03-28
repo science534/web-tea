@@ -58,7 +58,7 @@
             50% { opacity: 0.5; }
         }
 
-        /* --- STYLE UTAMA (GAK DIUBAH) --- */
+        /* --- STYLE UTAMA --- */
         body {
             background-color: var(--bg-deep);
             color: white;
@@ -90,7 +90,9 @@
             border: 1px solid var(--border-line);
             border-radius: 50px;
             color: white; font-family: 'Orbitron'; outline: none;
+            transition: 0.3s;
         }
+        .search-container input:focus { border-color: var(--am-cyan); box-shadow: 0 0 15px var(--am-cyan-glow); }
 
         .categories { display: flex; gap: 12px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
         .cat-btn {
@@ -127,10 +129,12 @@
             position: relative; box-shadow: 0 0 30px var(--am-cyan-glow);
             animation: slideUp 0.3s ease;
         }
+        @keyframes slideUp { from {transform: translateY(30px); opacity:0;} to {transform: translateY(0); opacity:1;} }
+        
         .close-btn { position: absolute; top: 15px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
-        .modal-img { width: 100%; border-radius: 15px; margin-bottom: 20px; }
-        .modal-title { font-family: 'Orbitron'; color: var(--am-cyan); }
-        .modal-desc { line-height: 1.6; color: #ccc; font-size: 0.95em; margin-bottom: 20px; }
+        .modal-img { width: 100%; border-radius: 15px; margin-bottom: 20px; height: 200px; object-fit: cover; border: 1px solid var(--border-line); }
+        .modal-title { font-family: 'Orbitron'; color: var(--am-cyan); margin-bottom: 10px; }
+        .modal-desc { line-height: 1.6; color: #ccc; font-size: 0.95em; margin-bottom: 25px; text-align: justify; }
         
         #emptyMsg { margin-top: 60px; text-align: center; font-family: 'Orbitron'; color: #444; }
     </style>
@@ -164,12 +168,12 @@
             <img id="mImg" class="modal-img">
             <h2 id="mTitle" class="modal-title"></h2>
             <div id="mDesc" class="modal-desc"></div>
-            <a id="mLink" target="_blank" style="color:black; background:cyan; padding:10px 20px; text-decoration:none; border-radius:5px; font-family:Orbitron; font-size:12px;">RISET LANJUT</a>
+            <a id="mLink" target="_blank" style="color:black; background:cyan; padding:12px 25px; text-decoration:none; border-radius:5px; font-family:Orbitron; font-size:11px; font-weight:bold; display: inline-block;">RISET LANJUT</a>
         </div>
     </div>
 
     <script>
-        // ANIMASI AWAL
+        // ANIMASI AWAL (ACCESS GRANTED)
         window.onload = function() {
             setTimeout(() => {
                 document.getElementById('status-log').innerText = "ACCESS GRANTED. WELCOME, SCIENCE.";
@@ -183,6 +187,7 @@
             }, 2000);
         };
 
+        // FIREBASE SETUP
         const firebaseConfig = { databaseURL: "https://data-base-3d74b-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -190,6 +195,7 @@
         let cosmicStore = [];
         let currentFilter = 'all';
 
+        // REALTIME AMBIL DATA
         db.ref('cosmic_data').on('value', snap => {
             cosmicStore = snap.val() ? Object.values(snap.val()) : [];
             render();
@@ -199,8 +205,14 @@
             const list = document.getElementById('dataList');
             const search = document.getElementById('searchInput').value.toLowerCase();
             list.innerHTML = "";
-            let filtered = cosmicStore.filter(i => (currentFilter === 'all' || i.kategori === currentFilter) && i.judul.toLowerCase().includes(search));
+            
+            let filtered = cosmicStore.filter(i => 
+                (currentFilter === 'all' || i.kategori === currentFilter) && 
+                (i.judul.toLowerCase().includes(search))
+            );
+
             document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
+
             filtered.reverse().forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'cosmic-card';
@@ -210,6 +222,7 @@
             });
         }
 
+        // MODAL LOGIC
         function openModal(item) {
             document.getElementById('mImg').src = item.gambar;
             document.getElementById('mTitle').innerText = item.judul;
@@ -218,8 +231,11 @@
             document.getElementById('cosmicModal').style.display = 'flex';
         }
 
-        function closeModal() { document.getElementById('cosmicModal').style.display = 'none'; }
-        
+        function closeModal() {
+            document.getElementById('cosmicModal').style.display = 'none';
+        }
+
+        // FILTER LOGIC
         document.querySelectorAll('.cat-btn').forEach(b => {
             b.onclick = () => {
                 document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
@@ -228,7 +244,14 @@
                 render();
             };
         });
+
+        // SEARCH LOGIC
         document.getElementById('searchInput').oninput = render;
+
+        // TUTUP MODAL KALAU KLIK LUAR KOTAK
+        window.onclick = (e) => {
+            if(e.target == document.getElementById('cosmicModal')) closeModal();
+        }
     </script>
 </body>
-    </html>
+</html>
