@@ -3,255 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC DATA - Galaxy System</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <title>Website Ditutup</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400&display=swap');
-
-        :root {
-            --bg-deep: #050507;
-            --am-cyan: #00ffff;
-            --am-cyan-glow: rgba(0, 255, 255, 0.4);
-            --card-dark: #0f0f12;
-            --border-line: rgba(0, 255, 255, 0.15);
-        }
-
-        /* --- ANIMASI ACCESS (LOADING SCREEN) --- */
-        #access-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
+        body {
+            background-color: #050505;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: var(--am-cyan);
-            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
         }
 
-        .scanner-line {
-            width: 250px;
-            height: 2px;
-            background: var(--am-cyan);
-            box-shadow: 0 0 15px var(--am-cyan);
-            position: relative;
-            animation: scan 2s infinite ease-in-out;
+        .container {
+            text-align: center;
         }
 
-        .access-text {
-            margin-top: 20px;
-            letter-spacing: 4px;
-            font-size: 0.8em;
+        h1 {
+            color: #fff;
+            font-size: 3rem;
             text-transform: uppercase;
-            animation: blink 0.5s infinite;
+            /* Efek Neon Biru/Cyan */
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #00d4ff,
+                0 0 40px #00d4ff,
+                0 0 80px #00d4ff;
+            animation: flicker 2s infinite alternate;
         }
 
-        @keyframes scan {
-            0%, 100% { transform: translateY(-20px); opacity: 0.2; }
-            50% { transform: translateY(20px); opacity: 1; }
+        p {
+            color: #ff0055;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            /* Efek Neon Pink/Merah */
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #ff0055,
+                0 0 20px #ff0055;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        /* Animasi kedap-kedip biar makin dramatis */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 32%, 57%, 100% {
+                text-shadow: 
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 20px #00d4ff,
+                    0 0 40px #00d4ff,
+                    0 0 80px #00d4ff;
+            }
+            20%, 24%, 55% {       
+                text-shadow: none;
+                color: #333;
+            }
         }
-
-        /* --- STYLE UTAMA --- */
-        body {
-            background-color: var(--bg-deep);
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
-            background-size: 40px 40px;
-            overflow-x: hidden;
-        }
-
-        .header { text-align: center; margin: 30px 0 40px 0; }
-        .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.2em;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            background: linear-gradient(to bottom, #fff, var(--am-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px var(--am-cyan-glow));
-        }
-
-        .search-container { width: 100%; max-width: 500px; margin-bottom: 30px; }
-        .search-container input {
-            width: 100%; padding: 16px 25px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-line);
-            border-radius: 50px;
-            color: white; font-family: 'Orbitron'; outline: none;
-            transition: 0.3s;
-        }
-        .search-container input:focus { border-color: var(--am-cyan); box-shadow: 0 0 15px var(--am-cyan-glow); }
-
-        .categories { display: flex; gap: 12px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
-        .cat-btn {
-            background: transparent; border: 1px solid var(--border-line);
-            color: var(--am-cyan); padding: 10px 22px; border-radius: 50px;
-            font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
-        }
-        .cat-btn.active { background: var(--am-cyan); color: #000; box-shadow: 0 0 15px var(--am-cyan); }
-
-        .data-grid {
-            width: 100%; max-width: 1100px;
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;
-        }
-
-        .cosmic-card {
-            background: var(--card-dark);
-            border: 1px solid var(--border-line);
-            border-radius: 15px; padding: 15px;
-            text-align: center; cursor: pointer; transition: 0.3s;
-        }
-        .cosmic-card:hover { border-color: var(--am-cyan); transform: scale(1.03); }
-        .cosmic-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; }
-        .cosmic-card h3 { font-family: 'Orbitron'; color: var(--am-cyan); margin: 15px 0 5px 0; font-size: 1em; }
-
-        /* MODAL */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
-        }
-        .modal-content {
-            background: #111; border: 2px solid var(--am-cyan);
-            width: 90%; max-width: 500px; border-radius: 20px; padding: 30px;
-            position: relative; box-shadow: 0 0 30px var(--am-cyan-glow);
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp { from {transform: translateY(30px); opacity:0;} to {transform: translateY(0); opacity:1;} }
-        
-        .close-btn { position: absolute; top: 15px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
-        .modal-img { width: 100%; border-radius: 15px; margin-bottom: 20px; height: 200px; object-fit: cover; border: 1px solid var(--border-line); }
-        .modal-title { font-family: 'Orbitron'; color: var(--am-cyan); margin-bottom: 10px; }
-        .modal-desc { line-height: 1.6; color: #ccc; font-size: 0.95em; margin-bottom: 25px; text-align: justify; }
-        
-        #emptyMsg { margin-top: 60px; text-align: center; font-family: 'Orbitron'; color: #444; }
     </style>
 </head>
 <body>
 
-    <div id="access-screen">
-        <div class="scanner-line"></div>
-        <div class="access-text">CONNECTING TO COSMIC SERVER...</div>
-        <div id="status-log" style="font-size: 8px; margin-top: 10px; color: grey;">BYPASSING ENCRYPTION...</div>
+    <div class="container">
+        <h1>WEBSITE INI DI TUTUP</h1>
+        <p>Karena tidak ada yang mau aploud</p>
+        <p style="color: #00ff95; text-shadow: 0 0 10px #00ff95; font-size: 1rem; margin-top: 50px;">
+            By Science
+        </p>
     </div>
 
-    <div class="header"><h1>COSMIC <span>DATA</span></h1></div>
-
-    <div class="search-container"><input type="text" id="searchInput" placeholder="MEMINDAI OBJEK..."></div>
-
-    <div class="categories">
-        <button class="cat-btn active" data-filter="all">ALL</button>
-        <button class="cat-btn" data-filter="Planet">PLANET</button>
-        <button class="cat-btn" data-filter="Galaksi">GALAKSI</button>
-        <button class="cat-btn" data-filter="Bintang">BINTANG</button>
-        <button class="cat-btn" data-filter="Misteri">MISTERI</button>
-    </div>
-
-    <div class="data-grid" id="dataList"></div>
-    <div id="emptyMsg">NO DATA DETECTED</div>
-
-    <div id="cosmicModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <img id="mImg" class="modal-img">
-            <h2 id="mTitle" class="modal-title"></h2>
-            <div id="mDesc" class="modal-desc"></div>
-            <a id="mLink" target="_blank" style="color:black; background:cyan; padding:12px 25px; text-decoration:none; border-radius:5px; font-family:Orbitron; font-size:11px; font-weight:bold; display: inline-block;">RISET LANJUT</a>
-        </div>
-    </div>
-
-    <script>
-        // ANIMASI AWAL (ACCESS GRANTED)
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('status-log').innerText = "ACCESS GRANTED. WELCOME, SCIENCE.";
-                setTimeout(() => {
-                    document.getElementById('access-screen').style.transition = "1s";
-                    document.getElementById('access-screen').style.opacity = "0";
-                    setTimeout(() => {
-                        document.getElementById('access-screen').style.display = "none";
-                    }, 1000);
-                }, 1000);
-            }, 2000);
-        };
-
-        // FIREBASE SETUP
-        const firebaseConfig = { databaseURL: "https://data-base-3d74b-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let cosmicStore = [];
-        let currentFilter = 'all';
-
-        // REALTIME AMBIL DATA
-        db.ref('cosmic_data').on('value', snap => {
-            cosmicStore = snap.val() ? Object.values(snap.val()) : [];
-            render();
-        });
-
-        function render() {
-            const list = document.getElementById('dataList');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            list.innerHTML = "";
-            
-            let filtered = cosmicStore.filter(i => 
-                (currentFilter === 'all' || i.kategori === currentFilter) && 
-                (i.judul.toLowerCase().includes(search))
-            );
-
-            document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
-
-            filtered.reverse().forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'cosmic-card';
-                card.innerHTML = `<img src="${item.gambar}"><h3>${item.judul}</h3>`;
-                card.onclick = () => openModal(item);
-                list.appendChild(card);
-            });
-        }
-
-        // MODAL LOGIC
-        function openModal(item) {
-            document.getElementById('mImg').src = item.gambar;
-            document.getElementById('mTitle').innerText = item.judul;
-            document.getElementById('mDesc').innerText = item.deskripsi;
-            document.getElementById('mLink').href = item.artikel;
-            document.getElementById('cosmicModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('cosmicModal').style.display = 'none';
-        }
-
-        // FILTER LOGIC
-        document.querySelectorAll('.cat-btn').forEach(b => {
-            b.onclick = () => {
-                document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-                b.classList.add('active');
-                currentFilter = b.dataset.filter;
-                render();
-            };
-        });
-
-        // SEARCH LOGIC
-        document.getElementById('searchInput').oninput = render;
-
-        // TUTUP MODAL KALAU KLIK LUAR KOTAK
-        window.onclick = (e) => {
-            if(e.target == document.getElementById('cosmicModal')) closeModal();
-        }
-    </script>
 </body>
 </html>
